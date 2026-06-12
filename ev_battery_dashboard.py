@@ -26,10 +26,9 @@ eol_threshold = st.sidebar.slider("End-of-Life Threshold (%)",
 # --- Demo Data Generator (Multi-Battery Support) ---
 @st.cache_data
 def generate_dummy_data():
-    # Generates a synthetic dataset containing 3 separate batteries
     all_data = []
     battery_ids = ["BAT_001", "BAT_002", "BAT_003"]
-    decay_rates = [0.0006, 0.0009, 0.0012] # Varying lifespans
+    decay_rates = [0.0006, 0.0009, 0.0012]
     
     for b_id, rate in zip(battery_ids, decay_rates):
         cycles = np.arange(1, 201)
@@ -56,6 +55,9 @@ if uploaded_file is not None:
         # Sneak peek at data to handle unlabeled or labeled formats
         df_preview = pd.read_csv(uploaded_file, nrows=2)
         
+        # CRITICAL FIX: Rewind the file pointer back to the very beginning!
+        uploaded_file.seek(0) 
+        
         # Check if the file is unlabelled/raw (first row contains pure numeric digits)
         if df_preview.columns[0].replace('.','',1).isdigit() or df_preview.shape[1] < 3:
             df = pd.read_csv(uploaded_file, header=None)
@@ -70,7 +72,6 @@ if uploaded_file is not None:
             run_idx = run_labels.index(selected_run)
             df = df.iloc[boundaries[run_idx]:boundaries[run_idx+1]].reset_index(drop=True)
             
-            # Map default columns for secondary diagnostics if available
             if 'Channel_2' in df.columns: df = df.rename(columns={'Channel_2': 'Temperature_C'})
             if 'Channel_3' in df.columns: df = df.rename(columns={'Channel_3': 'Internal_Resistance_Ohm'})
         else:
@@ -97,7 +98,6 @@ else:
 if 'Cycle' not in df.columns or 'Capacity' not in df.columns:
     st.error("⚠️ Invalid Data Format: Active frame mapping requires 'Cycle' and 'Capacity' markers.")
 else:
-    # 1. Pipeline Calculus
     initial_capacity = df['Capacity'].iloc[0]
     current_capacity = df['Capacity'].iloc[-1]
     current_soh = (current_capacity / initial_capacity) * 100
@@ -111,7 +111,6 @@ else:
         
     total_predicted_life = current_cycle + predicted_cycles_left
 
-    # 2. Executive KPI Summary Cards
     col1, col2, col3 = st.columns(3)
     with col1:
         soh_delta = current_soh - (df['Capacity'].iloc[-2] / initial_capacity * 100) if len(df) > 1 else 0
@@ -134,7 +133,6 @@ else:
 
     st.write("---")
 
-    # 3. Main Projection Chart (Historical + Future Prediction)
     st.subheader("📈 Capacity Degradation & PINN Forecast")
     
     future_cycles = np.arange(current_cycle + 1, total_predicted_life + 50)
@@ -148,7 +146,6 @@ else:
     fig.update_layout(xaxis_title="Total Runtime Cycles", yaxis_title="Capacity Magnitude", hovermode="x unified")
     st.plotly_chart(fig, use_container_width=True)
 
-    # 4. Secondary Telemetry Diagnostics
     st.subheader("🔍 Secondary Channel Telemetry Diagnostics")
     col_diag1, col_diag2 = st.columns(2)
     
