@@ -11,9 +11,10 @@ matplotlib
 seaborn
 
 streamlit
+plotly
 
 joblib
 
-plotly
-
 openpyxl
+
+tqdm
