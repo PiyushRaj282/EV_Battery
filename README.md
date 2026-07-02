@@ -251,10 +251,3 @@ The dashboard provides battery health monitoring along with Remaining Useful Lif
 
 ---
 
-## Author
-
-**Piyush Raj**
-
-B.Tech Computer Science and Engineering (Data Science)
-
-Vellore Institute of Technology (VIT), Vellore
