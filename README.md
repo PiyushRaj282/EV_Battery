@@ -142,7 +142,7 @@ The dashboard provides:
 EV_Battery_RUL_Project/
 │
 ├── dashboard/
-│   └── app.py
+│   └── sample.py
 │
 ├── data/
 │   ├── raw/
@@ -221,7 +221,7 @@ This generates:
 ### Run the Dashboard
 
 ```bash
-streamlit run dashboard/app.py
+streamlit run dashboard/sample.py
 ```
 
 ---
